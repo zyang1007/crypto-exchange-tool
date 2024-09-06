@@ -1,11 +1,11 @@
 import ccxt
 
 try:
-    # Initialize the Binance exchange
-    exchange = ccxt.binance()
+    # Initialize the Binance.US exchange
+    exchange = ccxt.binanceus()
 
     # Fetch the ticker for BTC/USDT
-    ticker = exchange.fetch_ticker('BTC/USDT')
+    ticker = exchange.fetch_ticker('ETH/USDC')
 
     # Print the ticker information
     print(ticker)
