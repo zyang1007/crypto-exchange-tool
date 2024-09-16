@@ -4,16 +4,18 @@ import config
 
 def main():
     try:
-        trader = GridTrader(
-            api_key = config.API_KEY,
-            api_secret = config.API_SECRET,
-            symbol = 'ETH/USDT',
-            initial_price = 2700,
-            price_min = 1800,
-            price_max = 3600,
-            grids = 100,
-            fixed_trade_volume = 0.1,
-            max_amount = 10
+        trader = GridTrader(  # Trading parameters
+            api_key=config.API_KEY,
+            api_secret=config.API_SECRET,
+            symbol='ETH/USDT',
+            price_min=1800,
+            price_max=3600,
+            num_grids=100,
+            position=0,
+            max_position=10,
+            initial_price=2700,
+            initial_price_idx=None,
+            grid_prices=None
         )
         trader.monitor_and_trade()
 
