@@ -1,23 +1,28 @@
-from grid_trader import GridTrader
-import config
+
+from src.exchange_manager import ExchangeManager
+from src.strategy.grid_strategy import GridStrategy
+from src.strategy.strategy_manager import StrategyManager
 
 
 def main():
     try:
-        trader = GridTrader(  # Trading parameters
-            api_key=config.API_KEY,
-            api_secret=config.API_SECRET,
-            symbol='ETH/USDT',
-            price_min=1800,
-            price_max=3600,
-            num_grids=100,
-            position=0,
-            max_position=10,
-            initial_price=2700,
-            initial_price_idx=None,
-            grid_prices=None
-        )
-        trader.monitor_and_trade()
+        config = {
+            'apiKey': 'your-api-key',
+            'secret': 'your-secret',
+            'baseURL': 'https://testnet.binancefuture.com'
+        }
+
+        # Initialize the Strategy Manager
+        strategy_manager = StrategyManager()
+
+        grid_strategy = GridStrategy()  # Creates and adds grid strategies into manager
+        strategy_manager.add_strategy(grid_strategy)
+        strategy_manager.execute_strategy('GridStrategy', 'BTC/USDT', market_type='futures')  # Run a specific strategy
+
+        # another_strategy = AnotherStrategy(exchange_manager, config)  # Assuming have another class
+        # strategy_manager.add_strategy(another_strategy)  # add new strategy into manager
+
+        # strategy_manager.execute_all_strategies()  # Run all strategies
 
     except KeyboardInterrupt:
         print("\n\nTrading process interrupted by user. Exiting...")
