@@ -1,34 +1,41 @@
 import ccxt
-
+from typing import Literal
 from src import config_testnet
 
 
 class ExchangeManager:
-    def __init__(self, exchange_name=None, config=None, symbol='ETH/USDT'):
+    def __init__(self, exchange_name: str = None, config: dict = None, symbol: str = None):
+        self.futures_exchange = None
+        self.spot_exchange = None
         self.symbol = symbol if symbol else 'ETH/USDT'
-        self.spot_exchange = self.create_exchange_instance(exchange_name, config, 'spot')
-        self.futures_exchange = self.create_exchange_instance(exchange_name, config, 'futures')
+        self.create_exchange_instance(exchange_name, config, 'spot')
+        self.create_exchange_instance(exchange_name, config, 'futures')
 
-    @staticmethod
-    def create_exchange_instance(exchange_name, config, market_type: str):
+    def create_exchange_instance(self, exchange_name, config, market_type: str):
         # Note: outer if-else statement doesn't cover every case, may need to be filled.
         if exchange_name is None or config is None:
+            print(f"Create {market_type} testnet instances...")
             if market_type == 'spot':
-                return ccxt.binance({  # default exchange is binance, config is testnet
+                self.spot_exchange = ccxt.binance({  # default exchange is binance, config is testnet
                     'apiKey': config_testnet.SPOT_API_KEY,
                     'secret': config_testnet.SPOT_API_SECRET,
                     'enableRateLimit': True,
                 })
+                self.spot_exchange.set_sandbox_mode(True)  # Enable testnet mode
             elif market_type == 'futures':
-                return ccxt.binance({
+                self.futures_exchange = ccxt.binance({
                     'apiKey': config_testnet.FUTURES_API_KEY,
                     'secret': config_testnet.FUTURES_API_SECRET,
                     'enableRateLimit': True,
+                    'options': {
+                        'defaultType': 'future'  # Specify futures
+                    }
                 })
+                self.futures_exchange.set_sandbox_mode(True)  # Enable testnet mode
         else:
             exchange_class = getattr(ccxt, exchange_name)
             if market_type == 'spot':
-                return exchange_class({
+                self.spot_exchange = exchange_class({
                     'apiKey': config['spot_api_key'],
                     'secret': config['spot_api_secret'],
                     'enableRateLimit': True,
@@ -37,7 +44,7 @@ class ExchangeManager:
                     }
                 })
             elif market_type == 'futures':
-                return exchange_class({
+                self.futures_exchange = exchange_class({
                     'apiKey': config['futures_api_key'],
                     'secret': config['futures_api_secret'],
                     'enableRateLimit': True,
@@ -89,7 +96,8 @@ class ExchangeManager:
         except ccxt.ExchangeError as e:
             print(f"Exchange error: {str(e)}")
 
-    def place_order(self, symbol: str, side: str, amount: float, price: float, order_type: str, market_type: str):
+    def place_order(self, symbol: str, side: Literal['buy', 'sell'], amount: float, price: float, order_type: str,
+                    market_type: str):
         """Generalized method to place an order on Spot or Futures markets."""
         exchange = self.get_exchange(market_type)
         try:
@@ -126,7 +134,7 @@ class ExchangeManager:
         except Exception as e:
             raise Exception(f"Failed to fetch open orders for {symbol} on {market_type} market: {e}")
 
-    def fetch_closed_orders(self, symbol: str, market_type: str):
+    def fetch_closed_orders(self, symbol: str = 'ETH/USDT', market_type: str = None):
         """Generalized method to fetch closed orders from Spot or Futures markets."""
         exchange = self.get_exchange(market_type)
         try:

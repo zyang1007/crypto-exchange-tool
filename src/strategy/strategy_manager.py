@@ -18,14 +18,14 @@ class StrategyManager:
         """Execute a specific strategy by its name."""
         strategy = self._find_strategy_by_name(strategy_name)
         if strategy:
-            strategy.execute()
+            strategy.execute(time_interval=60)
         else:
             print(f"Strategy '{strategy_name}' not found")
 
     def execute_all_strategies(self):
         """Execute all strategy"""
         for strategy in self.strategies:
-            strategy.execute()
+            strategy.execute(time_interval=60)
 
     def _find_strategy_by_name(self, strategy_name: str) -> Optional[AbstractStrategy]:
         """Find a strategy by its name."""

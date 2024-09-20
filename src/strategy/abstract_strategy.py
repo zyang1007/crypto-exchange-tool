@@ -9,7 +9,7 @@ class AbstractStrategy(ABC):
         self.exchange_manager = ExchangeManager(exchange_name, config, symbol)
 
     @abstractmethod
-    def execute(self):
+    def execute(self, time_interval):
         """Execute the trading strategy."""
         pass
 
