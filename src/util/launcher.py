@@ -30,24 +30,33 @@ class Launcher:
             choice = input("Enter your choice: ")
             print("-------------------------")
 
-            if choice == '1':
+            if choice == '1':  # retrieve all balance
                 market_type = input("Enter market type (spot/futures): ")
                 balance = self.my_strategy.fetch_balance(market_type)
                 print(balance)
-            elif choice == '2':
+
+            elif choice == '2':  # check specific asset balance on an exchange
                 market_type = input("Enter market type (spot/futures): ")
                 asset_symbol = input("Enter asset symbol(e.g. ETH/BTC): ")
                 balance = self.my_strategy.fetch_specific_balance(market_type, asset_symbol)
                 print(balance)
+
             elif choice == '3':
                 self.ask_for_order_info()
-            elif choice == '4':
+
+            elif choice == '4':  # check order status
                 market_type = input("Enter market type (spot/futures): ")
                 order_id = input("Enter order_id: ")
                 order = self.my_strategy.fetch_order(order_id, 'ETH/USDT', market_type)
                 print(f"Order status: {order['status']}")
-            elif choice == '5':
-                pass
+
+            elif choice == '5':  # cancel an order
+                market_type = input("Enter market type (spot/futures): ")
+                order_id = input("Enter order_id: ")
+                symbol = input("Enter order symbol(e.g. ETH/USDT) ")
+                order = self.my_strategy.exchange_manager.cancel_order(order_id, symbol, market_type)
+                print(f"Canceled order {order_id}, status: {order['status']}")
+
             elif choice == '0':
                 break
             else:
@@ -127,9 +136,3 @@ class Launcher:
         except Exception as e:
             print(f"Failed to place {order_type} order: {str(e)}")
             return None
-
-
-
-if __name__ == "__main__":
-    launcher = Launcher()
-    launcher.run()

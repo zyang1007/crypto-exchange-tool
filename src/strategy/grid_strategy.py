@@ -79,7 +79,8 @@ class GridStrategy(AbstractStrategy):
                     current_price = self.fetch_ticker(market.type)
                     exchange_balance = self.fetch_balance(market.type)
                     free_usdt = exchange_balance['total'].get('USDT', 0)
-                    print(f"\n> {market.type} market: current ETH price={current_price}, "
+
+                    print(f"\n> {market.type} market: ETH curr_price={current_price}, "
                           f"prev_price={market.previous_price}, free ETH position={market.curr_position}, "
                           f"free USDT={free_usdt}")
 
@@ -99,11 +100,13 @@ class GridStrategy(AbstractStrategy):
                         index = self.calculate_trade_amount(current_price, market.previous_price_idx)
                         print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
                               f"price {current_price} on {market.type} market...")
-                    elif current_price > market.previous_price:  # and market.curr_position > 0:
+
+                    elif current_price > market.previous_price and market.curr_position > 0:
                         self.trade_type = 'sell'
                         index = self.calculate_trade_amount(current_price, market.previous_price_idx)
                         print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
                               f"price {current_price} on {market.type} market...")
+
                     else:
                         print(f"No trade executed. Current price: {current_price}, "
                               f"Previous price: {market.previous_price}")
