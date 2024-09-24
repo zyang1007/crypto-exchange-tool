@@ -9,10 +9,10 @@ class GridStrategy(AbstractStrategy):
                  grid_levels=None):
         super().__init__(exchange_name, config, symbol)
         self.symbol = symbol if symbol else 'ETH/USDT'  # default trading pair
-        self.grid_size = 100   # total number of grids
-        self.price_min = 1800   # Lower price boundary
-        self.price_max = 3600   # upper price boundary
-        self.max_position = 10   # Maximum allowed position size
+        self.grid_size = 100  # total number of grids
+        self.price_min = 1800  # Lower price boundary
+        self.price_max = 3600  # upper price boundary
+        self.max_position = 10  # Maximum allowed position size
 
         self.trade_type = None  # To record whether we are buying or selling
         self.trade_amount = 0  # Total trading amount
@@ -79,7 +79,8 @@ class GridStrategy(AbstractStrategy):
                     current_price = self.fetch_ticker(market.type)
                     exchange_balance = self.fetch_balance(market.type)
                     free_usdt = exchange_balance['total'].get('USDT', 0)
-                    print(f"\n> {market.type} market: current ETH price={current_price}, "
+
+                    print(f"\n> {market.type} market: ETH curr_price={current_price}, "
                           f"prev_price={market.previous_price}, free ETH position={market.curr_position}, "
                           f"free USDT={free_usdt}")
 
@@ -99,11 +100,13 @@ class GridStrategy(AbstractStrategy):
                         index = self.calculate_trade_amount(current_price, market.previous_price_idx)
                         print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
                               f"price {current_price} on {market.type} market...")
-                    elif current_price > market.previous_price:  # and market.curr_position > 0:
+
+                    elif current_price > market.previous_price and market.curr_position > 0:
                         self.trade_type = 'sell'
                         index = self.calculate_trade_amount(current_price, market.previous_price_idx)
                         print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
                               f"price {current_price} on {market.type} market...")
+
                     else:
                         print(f"No trade executed. Current price: {current_price}, "
                               f"Previous price: {market.previous_price}")
@@ -131,9 +134,9 @@ class GridStrategy(AbstractStrategy):
                     # Double check position using ccxt if need to
                     # eth_balance = self.fetch_specific_balance('ETH')  # Get position using ccxt
                     # if eth_balance:
-                        # print("ETH Balances:", eth_balance)
+                    # print("ETH Balances:", eth_balance)
                     # else:
-                        # print("Asset not found")
+                    # print("Asset not found")
 
                     market.previous_price = current_price  # Update prev_price and index
                     market.previous_price_idx = index

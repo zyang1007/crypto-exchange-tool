@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+</head>
+<body>
+<h1>Welcome to the Home Page</h1>
+
+<!-- Link to the /data page to view the dynamic count -->
+<p>Click the link below to see the dynamic count:</p>
+<a href="{{ url_for('get_data') }}">View Dynamic Count</a>
+
+<!-- Link to the /set_config page to configure the count value -->
+<p>Click the link below to configure the count value:</p>
+<a href="{{ url_for('set_config') }}">Set Count Configuration</a>
+
+</body>
+</html>
