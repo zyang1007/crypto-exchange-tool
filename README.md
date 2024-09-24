@@ -1,6 +1,7 @@
 # crypto-exchange-tool
 
 # Planed Structure:
+```
 src/
 │
 ├── strategies/            # Strategy implementations
@@ -37,3 +38,4 @@ src/
 │   └── set_config.html
 │
 └── app.py                 # Main entry point for the application
+```
