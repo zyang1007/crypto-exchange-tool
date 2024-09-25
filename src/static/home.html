@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="Jingyan P">
+        <meta name="description" content="CryptoQuantTool">
+        <title>CryptoQuantTool-ETH/USDT</title>
+        <link href="#" rel="shortcut icon" />
+        <link rel="stylesheet" href="style.css" tyep="text/css">
+    </head>
+    
+    <body class="body">
+        <H1 class="title">CryptoQuant Grid Bot</H1>
+        
+        <!-- Form -->
+        <div class="container">
+        <form class="configForm" id="configForm" onsubmit="return false;">
+            <label for="tradingPair">Trading Pair:&nbsp;&nbsp;&nbsp;<i>ETH/USDT</i></label>
+            <label for="priceRange">Price Range:</label>
+            <div class="priceRange">
+                <input type="text" id="priceRangeLow" name="priceRangeLow" placeholder="Low Price" required>
+                <span>-</span>
+                <input type="text" id="priceRangeHigh" name="priceRangeHigh" placeholder="High Price" required>
+            </div>
+            <label for="grids">Number of Grids/ Levels:</label>
+            <input type="text" id="numberOfGrids" name="numberOfGrids" placeholder="Number of Grids" required>
+            <br>
+            <label for="investment">Investment:</label>
+            <input type="text" id="investment" name="investment" placeholder="Investment" required>
+            <br>
+            <!-- <button class="submitConfigBt" onclick="submitConfig()">Submit</button> -->
+            <input type="submit" class="submitConfigBt" value="Submit" onclick="submitConfig()">
+        </form>
+        </div>
+
+        <div class="container">
+            <button class="getConfigBt" onclick="getConfig()">Current Config</button>
+        </div>
+
+        <div class="container">
+            <button class="orderHistoryBt" onclick="getOrderHistory()">Order History</button>
+        </div>
+
+        <div class="container">
+            <button class="marketPriceBt" onclick="getMarketInfo()">Market Info</button>
+        </div>
+
+        <!-- Response display area -->
+        <p class="response" id="responseError">Error!!</p>
+        <div class="response" id="responseCurrentConfig">
+            <label>Current Config</label>
+            <table class="tableConfig" id="tableConfig">
+                <tr><td class="tableConfig">Trading Pair&nbsp;&nbsp;&nbsp;</td><td class="tableConfig" id="tableConfig1"></td></tr>
+                <tr><td class="tableConfig">Lower Price Limit&nbsp;&nbsp;&nbsp;</td><td class="tableConfig" id="tableConfig2"></td></tr>
+                <tr><td class="tableConfig">Upper Price Limit&nbsp;&nbsp;&nbsp;</td><td class="tableConfig" id="tableConfig3"></td></tr>
+                <tr><td class="tableConfig">Number of Grids&nbsp;&nbsp;&nbsp;</td><td class="tableConfig" id="tableConfig4"></td></tr>
+                <tr><td class="tableConfig">Investment&nbsp;&nbsp;&nbsp;</td><td class="tableConfig" id="tableConfig5"></td></tr>
+            </table>
+        </div>
+        <div class="response" id="responseInfo">Info..</div>
+        
+        <script src="control.js"></script>  
+    </body>
+
+</html>
+

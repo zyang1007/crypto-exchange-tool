@@ -1,8 +1,7 @@
-
 from src.routes.main_routes import main_routes
 from flask import Flask
 
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='')
 app.register_blueprint(main_routes, url_prefix='/')  # Optionally add a URL prefix
 
 
