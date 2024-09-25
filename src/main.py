@@ -1,4 +1,4 @@
-from src.routes.main_routes import main_routes
+from routes.main_routes import main_routes
 from flask import Flask
 
 app = Flask(__name__,static_url_path='')
