@@ -6,7 +6,7 @@ class Launcher:
 
     def __init__(self):
         # Initialize the strategy, exchanges, or other configurations
-        self.my_strategy = GridStrategy(exchange_name=None, config=None, symbol=None,
+        self.my_strategy = GridStrategy(exchange_name=None, exchange_config=None, symbol=None,
                                         starting_price=None, grid_levels=None)  # use default grid strategy
 
     @staticmethod

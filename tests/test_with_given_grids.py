@@ -14,7 +14,7 @@ class TestTrading(unittest.TestCase):
 
         self.grid_strategy = GridStrategy(
             exchange_name=None,
-            config=None,
+            exchange_config=None,
             symbol=None,
             starting_price=self.initial_price,
             grid_levels=self.grid_prices,

@@ -5,9 +5,9 @@ from src.strategy.abstract_strategy import AbstractStrategy
 
 
 class GridStrategy(AbstractStrategy):
-    def __init__(self, exchange_name: str = None, config=None, symbol: str = None, starting_price: float = None,
-                 grid_levels=None):
-        super().__init__(exchange_name, config, symbol)
+    def __init__(self, exchange_name: str = None, exchange_config=None, symbol: str = None,
+                 starting_price: float = None, grid_levels=None):
+        super().__init__(exchange_name, exchange_config, symbol)
         self.symbol = symbol if symbol else 'ETH/USDT'  # default trading pair
         self.grid_size = 100  # total number of grids
         self.price_min = 1800  # Lower price boundary
@@ -21,9 +21,6 @@ class GridStrategy(AbstractStrategy):
         self.grid_levels = grid_levels if grid_levels else self.generate_grid_levels()
         self.initial_price = starting_price if starting_price else 2700
         self.previous_price_idx = bisect.bisect_left(self.grid_levels, self.initial_price)
-
-        # TODO: need to clarify if current position starts with 0? Or fetch real ETH position?
-        # Current position (initialize to zero or fetch actual position)
 
         # Create market instances (spot and futures)
         balance = self.exchange_manager.fetch_balance('spot')
