@@ -29,7 +29,7 @@ class TestGridStrategy(unittest.TestCase):
             # Initialize GridStrategy for both spot and futures markets
             grid_strategy_instance = GridStrategy(
                 exchange_name=None,  # Use a valid exchange name for the test
-                config=None,
+                exchange_config=None,
                 symbol='ETH/USDT',
                 starting_price=2700,
                 grid_levels=grid_levels,
