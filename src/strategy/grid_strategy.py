@@ -8,6 +8,7 @@ class GridStrategy(AbstractStrategy):
     def __init__(self, exchange_name: str = None, exchange_config=None, symbol: str = None,
                  starting_price: float = None, grid_levels=None):
         super().__init__(exchange_name, exchange_config, symbol)
+        print("Initializing Grid Strategy...")
         self.symbol = symbol if symbol else 'ETH/USDT'  # default trading pair
         self.grid_size = 100  # total number of grids
         self.price_min = 1800  # Lower price boundary
@@ -22,19 +23,18 @@ class GridStrategy(AbstractStrategy):
         self.initial_price = starting_price if starting_price else 2700
         self.previous_price_idx = bisect.bisect_left(self.grid_levels, self.initial_price)
 
+        print("Fetching markets status...")
         # Create market instances (spot and futures)
-        balance = self.exchange_manager.fetch_balance('spot')
-        spot_eth_position = balance['total'].get('ETH', 0)  # Get free ETH from the total balance
+        # balance = self.exchange_manager.fetch_balance('spot')
+        # spot_eth_position = balance['total'].get('ETH', 0)  # Get free ETH from the total balance
 
-        spot_market = self.create_market_instance('spot', self.initial_price,
-                                                  self.previous_price_idx, spot_eth_position)
-
+        # spot_market = self.create_market_instance('spot', self.initial_price, self.previous_price_idx, spot_eth_position)
         future_balance = self.exchange_manager.fetch_balance('futures')
-        futures_eth_position = future_balance['total'].get('ETH', 0)
-        futures_market = self.create_market_instance('futures', self.initial_price,
-                                                     self.previous_price_idx, futures_eth_position)
-
-        self.markets = [spot_market, futures_market]
+        free_usdt = future_balance['total'].get('USDT', 0)
+        eth_position = future_balance['total'].get('ETH', 0)
+        self.futures_market = self.initialize_market_status('futures', free_usdt, self.initial_price,
+                                                            self.previous_price_idx, eth_position)
+        print("Grid Strategy initialization completed!")
 
     def generate_grid_levels(self):
         """Generate grid prices using a geometric sequence."""
@@ -72,71 +72,65 @@ class GridStrategy(AbstractStrategy):
 
         while True:
             try:
-                for market in self.markets:
-                    current_price = self.fetch_ticker(market.type)
-                    exchange_balance = self.fetch_balance(market.type)
-                    free_usdt = exchange_balance['total'].get('USDT', 0)
+                current_price = self.fetch_ticker(self.futures_market.market_type)
+                market = self.futures_market
 
-                    print(f"\n> {market.type} market: ETH curr_price={current_price}, "
-                          f"prev_price={market.previous_price}, free ETH position={market.curr_position}, "
-                          f"free USDT={free_usdt}")
+                if current_price is None:
+                    print("Failed to retrieve current price.")
+                    return
 
-                    if current_price is None:
-                        print("Failed to retrieve current price.")
-                        return
+                if current_price <= self.price_min or current_price >= self.price_max:  # check within boundaries
+                    print("Price reached the boundary, stopping...")
+                    return
 
-                    if current_price <= self.price_min or current_price >= self.price_max:  # check within boundaries
-                        print("Price reached the boundary, stopping...")
-                        return
+                # Trading logic/conditions:
+                # Determine whether to buy or sell based on price movement
+                index = 0
+                if market.previous_price > current_price and market.curr_eth_position < self.max_position:
+                    self.trade_type = 'buy'
+                    index = self.calculate_trade_amount(current_price, market.previous_price_idx)
+                    print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
+                          f"price {current_price} on {market.market_type} market...")
 
-                    # Trading logic/conditions:
-                    # Determine whether to buy or sell based on price movement
-                    index = 0
-                    if market.previous_price > current_price and market.curr_position < self.max_position:
-                        self.trade_type = 'buy'
-                        index = self.calculate_trade_amount(current_price, market.previous_price_idx)
-                        print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
-                              f"price {current_price} on {market.type} market...")
+                elif current_price > market.previous_price and market.curr_eth_position > 0:
+                    self.trade_type = 'sell'
+                    index = self.calculate_trade_amount(current_price, market.previous_price_idx)
+                    print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
+                          f"price {current_price} on {market.market_type} market...")
 
-                    elif current_price > market.previous_price and market.curr_position > 0:
-                        self.trade_type = 'sell'
-                        index = self.calculate_trade_amount(current_price, market.previous_price_idx)
-                        print(f"Preparing to {self.trade_type} {self.trade_amount} ETH at "
-                              f"price {current_price} on {market.type} market...")
+                else:
+                    print(f"No trade executed. Current price: {current_price}, "
+                          f"Previous price: {market.previous_price}")
+                    time.sleep(time_interval)
+                    continue
 
-                    else:
-                        print(f"No trade executed. Current price: {current_price}, "
-                              f"Previous price: {market.previous_price}")
-                        time.sleep(time_interval)
-                        continue
+                # TODO: validate conditions(if any) before place order.
+                #  e.g.: USDT balance; real amount user can afford; max_position, ect.
+                order = self.place_order(self.symbol, self.trade_type, self.trade_amount,
+                                         current_price, 'limit', market.market_type)
+                print(f"Order placed, order id: {order['id']}, status: {order['status']}")
+                # TODO: 下单未成交，需识别后再次确认成交条件再下单?
 
-                    # TODO: validate conditions(if any) before place order.
-                    #  e.g.: USDT balance; real amount user can afford; max_position, ect.
-                    order = self.place_order(self.symbol, self.trade_type, self.trade_amount,
-                                             current_price, 'limit', market.type)
-                    print(f"Order placed, order id: {order['id']}, status: {order['status']}")
-                    # TODO: 下单未成交，需识别后再次确认成交条件再下单?
+                # if not order['status'] == 'closed':
+                # print(f"Order {order_id} not completed, retrying...")
+                # TODO: call cancel_order() and then place_order() again? retry 3 times or until price change?
 
-                    # if not order['status'] == 'closed':
-                    # print(f"Order {order_id} not completed, retrying...")
-                    # TODO: call cancel_order() and then place_order() again? retry 3 times or until price change?
+                # Position updates based on trade type
+                if self.trade_type == 'buy':
+                    market.curr_eth_position += self.trade_amount
+                else:
+                    market.curr_eth_position -= self.trade_amount
 
-                    # Position updates based on trade type
-                    if self.trade_type == 'buy':
-                        market.curr_position += self.trade_amount
-                    else:
-                        market.curr_position -= self.trade_amount
+                # TODO: double check both two positions are the same if needed?
+                # Double check position using ccxt if need to
+                # eth_balance = self.fetch_specific_balance('ETH')  # Get position using ccxt
+                # if eth_balance:
+                # print("ETH Balances:", eth_balance)
+                # else:
+                # print("Asset not found")
 
-                    # TODO: double check both two positions are the same if needed?
-                    # Double check position using ccxt if need to
-                    # eth_balance = self.fetch_specific_balance('ETH')  # Get position using ccxt
-                    # if eth_balance:
-                    # print("ETH Balances:", eth_balance)
-                    # else:
-                    # print("Asset not found")
-
-                    market.previous_price = current_price  # Update prev_price and index
-                    market.previous_price_idx = index
+                market.previous_price = current_price  # Update prev_price and index
+                market.previous_price_idx = index
 
                 time.sleep(time_interval)  # Wait for 1 minute
 
@@ -150,12 +144,75 @@ class GridStrategy(AbstractStrategy):
         # while True:
         self.monitor_and_trade(time_interval)
 
-    def create_market_instance(self, market_type, prev_price, previous_price_idx, position):
-        return self.Market(market_type, prev_price, previous_price_idx, position)
+    def initialize_market_status(self, market_type, free_usdt_balance, previous_price, previous_price_idx,
+                                 curr_eth_position):
+        return self.MarketStatus(market_type, free_usdt_balance, previous_price, previous_price_idx, curr_eth_position)
 
-    class Market:
-        def __init__(self, market_type, previous_price, previous_price_idx, position):
-            self.type = market_type
+    # Realized P&L = (transaction price - average purchase price) x amount held
+    # Unrealized P&L = (current price - average purchase price) x amount hold
+    def compute_realized_profit_loss(self):
+        # Implement logic to calculate realized profit/loss
+        realized_profit_loss = 0
+        trades = self.fetch_closed_orders('ETH/USDT', 'futures')
+
+        # Calculate the realized profit/loss from trade history
+        for trade in trades:
+            # Example calculation, replace with actual logic
+            if trade['type'] == 'buy':
+                realized_profit_loss -= trade['amount'] * trade['price']
+            elif trade['type'] == 'sell':
+                realized_profit_loss += trade['amount'] * trade['price']
+
+        return realized_profit_loss
+
+    def calculate_matched_profit(self):
+        buy_stack = []  # Stack to keep track of unmatched buy trades
+        matched_profits = []
+
+        trades = self.fetch_closed_orders('ETH/USDT', 'futures')
+        # Iterate through trades in chronological order
+        for trade in trades:
+            # Only process closed trades
+            if trade['status'] != 'closed':
+                continue
+
+            if trade['type'] == 'buy':
+                buy_stack.append(trade)  # Add buy trades to the stack
+            elif trade['type'] == 'sell':
+                sell_amount = trade['amount']
+                sell_price = trade['price']
+
+                # Match sell trades with buy trades in the stack
+                while sell_amount > 0 and buy_stack:
+                    buy_trade = buy_stack.pop(0)  # Get the earliest buy trade
+                    buy_amount = buy_trade['amount']
+                    buy_price = buy_trade['price']
+
+                    # Calculate the amount to match
+                    matched_amount = min(sell_amount, buy_amount)
+                    profit_per_unit = sell_price - buy_price
+
+                    # Calculate the matched profit
+                    total_profit = matched_amount * profit_per_unit
+                    matched_profits.append({
+                        'time': trade['datetime'],
+                        'matched profit': total_profit
+                    })
+
+                    # Reduce sell and buy amounts accordingly
+                    sell_amount -= matched_amount
+                    buy_trade['amount'] -= matched_amount
+
+                    # If there is remaining buy amount, put it back in the stack
+                    if buy_trade['amount'] > 0:
+                        buy_stack.insert(0, buy_trade)
+
+        return matched_profits
+
+    class MarketStatus:
+        def __init__(self, market_type, free_usdt_balance, previous_price, previous_price_idx, curr_eth_position):
+            self.market_type = market_type
+            self.free_usdt_balance = free_usdt_balance
+            self.curr_eth_position = curr_eth_position
             self.previous_price = previous_price
             self.previous_price_idx = previous_price_idx
-            self.curr_position = position

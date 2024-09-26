@@ -5,11 +5,13 @@ from src import config_testnet
 
 class ExchangeManager:
     def __init__(self, exchange_name: str = None, config: dict = None, symbol: str = None):
+        print("Initializing Exchange Manager...")
         self.futures_exchange = None
         self.spot_exchange = None
         self.symbol = symbol if symbol else 'ETH/USDT'
         self.create_exchange_instance(exchange_name, config, 'spot')
         self.create_exchange_instance(exchange_name, config, 'futures')
+        print("Exchange Manager initialization completed!")
 
     def create_exchange_instance(self, exchange_name, config, market_type: str):
         # Note: outer if-else statement doesn't cover every case, may need to be filled.
@@ -52,6 +54,7 @@ class ExchangeManager:
                         'defaultType': 'future'
                     }
                 })
+        print(f"{market_type} instance creation completed!")
 
     def get_exchange(self, market_type: str):
         """ Helper function to get the correct exchange instance based on the market type. """
@@ -66,6 +69,9 @@ class ExchangeManager:
         """Generalized method to fetch the account balance for Spot or Futures markets."""
         exchange = self.get_exchange(market_type)
         try:
+            print(f"trying to fetch balance with {market_type} exchange...")
+            if exchange is None:
+                print("but exchange is a none value!!!")
             return exchange.fetch_balance()
         except Exception as e:
             raise Exception(f"Failed to fetch balance on {market_type} market: {e}")

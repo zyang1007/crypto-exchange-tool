@@ -58,7 +58,9 @@
         <th>Symbol</th>
         <th>Amount</th>
         <th>Price</th>
+        <th>Type</th>
         <th>Status</th>
+        <th>Time</th>
     </tr>
     </thead>
     <tbody>
@@ -68,7 +70,9 @@
         <td>{{ order.symbol }}</td>
         <td>{{ order.amount }}</td>
         <td>{{ order.price }}</td>
+        <td>{{ order.side }}</td>
         <td>{{ order.status }}</td>
+        <td>{{ order.date }}</td>>
     </tr>
     {% endfor %}
     </tbody>

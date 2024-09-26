@@ -1,7 +1,7 @@
 {
-  "symbol": "ETH/USDT",
-  "min_price": 1800,
-  "max_price": 3600,
-  "num_grids": 100,
-  "security_deposit": 0
+    "symbol": "ETH/USDT",
+    "min_price": "1800",
+    "max_price": "3600",
+    "num_grids": "100",
+    "security_deposit": "0"
 }

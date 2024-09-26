@@ -1,4 +1,3 @@
-import time
 from src.strategy.grid_strategy import GridStrategy
 
 
