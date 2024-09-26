@@ -1,0 +1,128 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    margin-top: 50px;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.title {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.container{
+    padding: 5px;
+}
+
+/* Form styles */
+.configForm {
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    color: #333;
+}
+
+/* Flexbox container for price inputs */
+.priceRange {
+    display: flex;
+    justify-content: center; /* Center both inputs */
+    align-items: center;
+}
+
+.priceRange input {
+    width: 100px;             /* Set a fixed width for the inputs */
+    padding: 10px;
+    margin: 3px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.priceRange span {
+    margin: 0 10px;           /* Margin between the dash and inputs */
+    font-weight: bold;
+}
+
+
+input[type="text"] {
+    width: calc(100% - 10px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+
+/* submit input button */
+.submitConfigBt {
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 300px;
+    text-align: center;
+    margin: 0 auto;
+    display: block;     
+    background-color: #4CAF50;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.submitConfigBt:hover {
+    background-color: #45a049;
+}
+
+/* Button */
+button{
+    background-color: #007BFF; 
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 300px;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+    cursor: pointer;   
+}
+
+button:hover {
+    background-color: #0069d9;
+}
+
+
+/* response */
+.response {
+    padding: 20px;
+    background-color: #fff;
+    border: 3px solid #333; 
+    border-radius: 15px;       
+    color: #333;
+    font-size: 18px;
+    margin: 20px 60px;        
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+    word-wrap:break-word;
+}
+
+#tableConfig{
+    margin: auto;
+}
+
+
+

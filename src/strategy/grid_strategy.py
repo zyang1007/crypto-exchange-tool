@@ -9,6 +9,7 @@ class GridStrategy(AbstractStrategy):
                  starting_price: float = None, grid_levels=None):
         super().__init__(exchange_name, exchange_config, symbol)
         print("Initializing Grid Strategy...")
+
         self.symbol = symbol if symbol else 'ETH/USDT'  # default trading pair
         self.grid_size = 100  # total number of grids
         self.price_min = 1800  # Lower price boundary
