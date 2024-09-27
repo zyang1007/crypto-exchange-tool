@@ -10,7 +10,7 @@ class GridStrategy(AbstractStrategy):
         super().__init__(exchange_name, exchange_config, symbol)
         print("Initializing Grid Strategy...")
 
-        self.symbol = symbol if symbol else 'ETH/USDT'  # default trading pair
+        self.symbol = symbol.upper() if symbol else 'ETH/USDT'  # default trading pair, convert symbol to upper
         self.grid_size = 100  # total number of grids
         self.price_min = 1800  # Lower price boundary
         self.price_max = 3600  # upper price boundary
@@ -73,7 +73,7 @@ class GridStrategy(AbstractStrategy):
 
         while True:
             try:
-                current_price = self.fetch_ticker(self.futures_market.market_type)
+                current_price = self.fetch_ticker(self.futures_market.market_type.lower())
                 market = self.futures_market
 
                 if current_price is None:
@@ -107,7 +107,8 @@ class GridStrategy(AbstractStrategy):
 
                 # TODO: validate conditions(if any) before place order.
                 #  e.g.: USDT balance; real amount user can afford; max_position, ect.
-                order = self.place_order(self.symbol, self.trade_type, self.trade_amount,
+                # Convert symbol to upper
+                order = self.place_order(self.symbol.upper(), self.trade_type, self.trade_amount,
                                          current_price, 'limit', market.market_type)
                 print(f"Order placed, order id: {order['id']}, status: {order['status']}")
                 # TODO: 下单未成交，需识别后再次确认成交条件再下单?
@@ -147,6 +148,8 @@ class GridStrategy(AbstractStrategy):
 
     def initialize_market_status(self, market_type, free_usdt_balance, previous_price, previous_price_idx,
                                  curr_eth_position):
+        #Convert type to lower
+        market_type = market_type.lower()
         return self.MarketStatus(market_type, free_usdt_balance, previous_price, previous_price_idx, curr_eth_position)
 
     # Realized P&L = (transaction price - average purchase price) x amount held
