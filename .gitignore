@@ -11,3 +11,9 @@ venv/
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# user secrets
+/src/config/user_key_secret.json
+/src/config/testnet_future.json
+
+

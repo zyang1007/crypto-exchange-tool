@@ -1,7 +1,10 @@
 {
     "symbol": "ETH/USDT",
-    "min_price": "1800",
-    "max_price": "3600",
-    "num_grids": "100",
-    "security_deposit": "0"
+    "min_price": 1800,
+    "max_price": 3600,
+    "num_grids": 100,
+    "max_position": 10,
+    "security_deposit": 0,
+    "fixed_trade_amount": 0.1,
+    "starting_price": 2700
 }

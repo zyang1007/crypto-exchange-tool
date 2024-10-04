@@ -30,25 +30,25 @@
 <nav>
     <p>
         <a href="{{ url_for('main.home') }}">Home</a> |
-        <a href="{{ url_for('main.get_order_history') }}">Order History</a> |
-        <a href="{{ url_for('main.get_realized_profit_loss') }}">Realized Profit</a> |
+        <a href="{{ url_for('config.config_credentials') }}">Authentication</a> |
+        <a href="{{ url_for('config.config_grid_parameters') }}">Configure Grid</a> |
+        <a href="{{ url_for('main.list_routes') }}">Routes List</a>
 
-        <a href="{{ url_for('main.config_grid') }}">Configure Grid</a>
     </p>
 </nav>
 </body>
 
 <body>
+<p>Click the link below to view Order History:</p>
+<a href="{{ url_for('main.get_order_history') }}">Order History</a>
+
 <p>Click the link below to view Matched Profits:</p>
 <a href="{{ url_for('main.get_matched_profit') }}">View Matched Profit or Loss</a>
 
-<!-- Link to the set_config page to configure the grid strategy -->
-<p>Ready to set your grid strategy?</p>
-<a href="{{ url_for('main.config_grid') }}">Configure Grid Strategy</a>
+<p>Click to see Realized Profit_Loss:</p>
+<a href="{{ url_for('main.get_realized_profit_loss') }}">Realized Profit</a> |
 
-<!-- Link to the /order_history page to view Order History -->
-<p>Click the link below to view URL usage:</p>
-<a href="{{ url_for('main.list_routes') }}">Routes List</a>
+
 </body>
 
 </html>

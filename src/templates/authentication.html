@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set User Authentication</title>
+</head>
+<body>
+<h1>Set User Authentication</h1>
+
+<form id="auth-form">
+    <label for="exchange_name">Exchange Name:</label>
+    <input type="text" id="exchange_name" name="exchange_name" value="{{ config['exchange_name'] or 'binance' }}" required><br><br>
+
+    <label for="market_type">Market Type:</label>
+    <input type="text" id="market_type" name="market_type" value="{{ config['market_type'] or 'future' }}" required><br><br>
+
+    <label for="api_key">API Key:</label>
+    <input type="text" id="api_key" name="api_key" value="{{ config['api_key'] or '' }}" required><br><br>
+
+    <label for="secret">Secret:</label>
+    <input type="text" id="secret" name="secret" value="{{ config['secret'] or '' }}" required><br><br>
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    document.getElementById('auth-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(event.target);
+        const authData = Object.fromEntries(formData.entries());
+
+        fetch('/authentication', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(authData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || 'Authentication updated!');
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+
+<a href="{{ url_for('main.home') }}">Back to Home</a>
+
+</body>
+</html>
