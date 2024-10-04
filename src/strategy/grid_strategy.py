@@ -35,6 +35,9 @@ class GridStrategy(AbstractStrategy):
         self.trade_type = None  # trade side for placing an order
         self.grid_levels = grid_levels if grid_levels else self.generate_grid_levels()
         self.previous_price_idx = bisect.bisect_left(self.grid_levels, self.previous_price)
+
+        self.buy_orders = []
+        self.sell_orders = []
         print("Grid Strategy initialization completed!")
 
     def set_grid_parameters(self, config):
@@ -108,6 +111,37 @@ class GridStrategy(AbstractStrategy):
             self.iterate_grids_and_place_limit_order(current_price)
         # TODO: 下单未成交，需识别后再次确认成交条件再下单
 
+    def compare_history_prices_and_trade(self, curr_price, date_time):
+        if curr_price is None:
+            print("Failed to retrieve current price.")
+            return
+        if curr_price <= self.min_price or curr_price >= self.max_price:  # check within boundaries
+            print("Price reached the boundary, stopping Auto-trading...")
+            return
+
+        # Trading logic/conditions: determine placing buy or sell order based on previous price change
+        if self.previous_price > curr_price and self.curr_eth_position < self.max_position:
+            # self.trade_type = 'buy'
+            for i in range(self.previous_price_idx - 1, -1, -1):
+                if self.grid_levels[i] >= curr_price:
+                    self.buy_orders.append({'side': 'buy', 'amount': self.fixed_trade_amount, 'price': curr_price, 'date': date_time})
+                    self.curr_eth_position += self.fixed_trade_amount
+                else:
+                    self.previous_price = curr_price  # Update prev_price and index
+                    self.previous_price_idx = i + 1
+                    break
+
+        elif curr_price > self.previous_price and self.curr_eth_position > -self.max_position:
+            # self.trade_type = 'sell'
+            for i in range(self.previous_price_idx + 1, len(self.grid_levels)):
+                if self.grid_levels[i] <= curr_price:
+                    self.sell_orders.append({'side': 'sell', 'amount': self.fixed_trade_amount, 'price': curr_price, 'date': date_time})
+                    self.curr_eth_position -= self.fixed_trade_amount
+                else:
+                    self.previous_price = curr_price
+                    self.previous_price_idx = i - 1
+                    break
+
     def execute(self, time_interval):
         print(f"> Executing grid strategy for {self.tracking_symbol}")
         while True:
@@ -116,23 +150,6 @@ class GridStrategy(AbstractStrategy):
                 time.sleep(time_interval)  # Wait for 1 minute
             except Exception as e:
                 print(f"Exception in monitor_and_trade: {e}")
-
-    # Realized P&L = (transaction price - average purchase price) x amount held
-    # Unrealized P&L = (current price - average purchase price) x amount hold
-    def compute_realized_profit_loss(self):
-        # Implement logic to calculate realized profit/loss
-        realized_profit_loss = 0
-        trades = self.exchange.fetch_closed_orders(self.tracking_symbol)
-
-        # Calculate the realized profit/loss from trade history
-        for trade in trades:
-            # Example calculation, replace with actual logic
-            if trade['type'] == 'buy':
-                realized_profit_loss -= trade['amount'] * trade['price']
-            elif trade['type'] == 'sell':
-                realized_profit_loss += trade['amount'] * trade['price']
-
-        return realized_profit_loss
 
     def calculate_matched_profit(self):
         buy_stack = []  # Stack to keep track of unmatched buy trades
@@ -177,3 +194,20 @@ class GridStrategy(AbstractStrategy):
                         buy_stack.insert(0, buy_trade)
 
         return matched_profits
+
+    def compute_realized_profit_loss(self):
+        # Realized P&L = (transaction price - average purchase price) x amount held
+        # Unrealized P&L = (current price - average purchase price) x amount hold
+        # Implement logic to calculate realized profit/loss
+        realized_profit_loss = 0
+        trades = self.exchange.fetch_closed_orders(self.tracking_symbol)
+
+        # Calculate the realized profit/loss from trade history
+        for trade in trades:
+            # Example calculation, replace with actual logic
+            if trade['type'] == 'buy':
+                realized_profit_loss -= trade['amount'] * trade['price']
+            elif trade['type'] == 'sell':
+                realized_profit_loss += trade['amount'] * trade['price']
+
+        return realized_profit_loss

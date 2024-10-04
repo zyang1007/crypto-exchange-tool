@@ -30,10 +30,8 @@ class MainRoutes:
         Fetch and display the order history, including open and closed orders, using the grid_strategy.
         """
         try:
-            # Fetch open orders from the exchange via grid_strategy
+            # Fetch open and closed orders using the exchange instance
             open_orders = self.grid_strategy.exchange.fetch_open_orders('ETH/USDT')
-
-            # Fetch closed orders (order history) from the exchange
             closed_orders = self.grid_strategy.exchange.fetch_closed_orders('ETH/USDT')
 
             # Combine open and closed orders for display
